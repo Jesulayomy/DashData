@@ -1,0 +1,13 @@
+[Unit]
+Description=Gunicorn instance to serve Blockhouse
+After=network.target
+
+[Service]
+User=USER
+Group=GROUP
+WorkingDirectory=/home/WD
+Environment="PATH=/home/WD/.venv/bin"
+ExecStart=/home/WD/.venv/bin/gunicorn --access-logfile access.log --error-logfile error.log --bind unix:blockhouse.sock -m 007 api.wsgi
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,40 @@
+# Create a virtual environment
+# Use an official Python runtime as the base image
+FROM python:3.9-slim-buster
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Copy the requirements file to the container
+COPY api/requirements.txt .
+
+# Install Python dependencies from requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the application code to the container
+COPY . .
+
+# Create a virtual environment
+RUN python3 -m venv .venv
+
+# Activate the virtual environment
+RUN .venv/bin/activate
+
+# Apply migrations
+RUN cd api
+RUN python manage.py makemigrations
+RUN python manage.py migrate
+EXPOSE 3000
+RUN python manage.py runserver 0.0.0.0:8000 &
+
+# Install npm
+RUN apt-get update && apt-get install -y npm
+
+# Install npm dependencies
+RUN cd ../dash-data && npm install
+
+# Expose the port on which the server will run
+EXPOSE 8000
+
+# Start the server
+CMD ["npm", "run", "dev"]
